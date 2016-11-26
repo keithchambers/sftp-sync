@@ -3,7 +3,6 @@
 import os
 import logging
 import pysftp
-import json
 
 HOST        = os.environ['HOST']
 USERNAME    = os.environ['USERNAME']
