@@ -1,0 +1,37 @@
+#!/usr/local/bin/python -tt
+
+import os
+import logging
+import pysftp
+import json
+
+HOST        = os.environ['HOST']
+USERNAME    = os.environ['USERNAME']
+PASSWORD    = os.environ['PASSWORD']
+REMOTE_PATH = os.environ['REMOTE_PATH']
+LOCAL_PATH  = os.environ['LOCAL_PATH']
+
+def main(args=None):
+    
+    logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S',
+            format='%(asctime)s.%(msecs)03d - %(levelname)s - %(message)s')
+
+    # Disable hostkey checking
+    cnopts = pysftp.CnOpts()
+    cnopts.hostkeys = None
+
+    with pysftp.Connection(host=HOST, username=USERNAME, password=PASSWORD,
+            cnopts=cnopts) as sftp:
+
+        os.chdir(LOCAL_PATH)
+        sftp.cwd(REMOTE_PATH)
+
+        l_files = os.listdir(LOCAL_PATH)
+        r_files = sftp.listdir(REMOTE_PATH)
+
+        for f in filter(lambda x: x not in l_files, r_files):
+            logging.info('sftp file %s', f)
+            sftp.get(f)
+
+if __name__ == "__main__":
+    main()
